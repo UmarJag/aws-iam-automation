@@ -1,0 +1,29 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "*",
+            "Action": "*",
+            "Resource": "arn:aws:s3:::ai-training-data/*",
+            "Condition" : {
+                    "StringEquals" : {
+                        "aws:ResourceTag/Project" : "AI-Security"
+                    },
+                    "IpAddress": {
+                        "aws:SourceIp" : "111.222.333.44/32"
+                    }
+            }
+            
+        },
+        {
+            "Effect" : "*",
+            "Action": "s3:DeleteObject",
+            "Resource": "arn:aws:s3:::ai-training-data/*",
+            "Condition" : {
+                "Bool" : {
+                    "aws:MultiFactorAuthPresent" : "false"
+                }
+            }
+        }
+    ]
+}
