@@ -1,0 +1,34 @@
+name: Deploy IAM Policies
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'policies/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  update-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Update IAM Policy using AWS CLI
+        run: |
+          POLICY_ARN="${{ secrets.POLICY_ARN }}"
+          aws iam create-policy-version \
+            --policy-arn "$POLICY_ARN" \
+            --policy-document "file://policies/my-app-policy.json" \
+            --set-as-default
